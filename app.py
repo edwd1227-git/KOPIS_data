@@ -30,7 +30,9 @@ st.set_page_config(
     page_icon="🎭",
 )
 
-SERVICE_KEY = "1610e189717b4c9a9a2bb74c10d47130"
+# Keep credentials out of source control. Existing key value may be configured in
+# Streamlit Cloud Secrets or an environment variable without changing the key.
+SERVICE_KEY = st.secrets.get("KOPIS_SERVICE_KEY", os.getenv("KOPIS_SERVICE_KEY", ""))
 BASE_URL = "http://www.kopis.or.kr/openApi/restful"
 REQUEST_TIMEOUT = 30
 
