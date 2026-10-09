@@ -447,6 +447,7 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
         "🎭 공연 Archive & 검색",
         "🏛️ 인프라 & 제작사 DB",
         "🔬 연구 데이터 랩",
+        "J-POP 연구자료 수집",
     ]
 )
 
