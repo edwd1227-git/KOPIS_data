@@ -6,6 +6,7 @@ KOPIS 공연예술 연구 데이터 랩
 from __future__ import annotations
 
 import io
+import os
 from datetime import date, timedelta
 from typing import Any
 from xml.etree import ElementTree as ET
@@ -30,9 +31,17 @@ st.set_page_config(
     page_icon="🎭",
 )
 
-# Keep credentials out of source control. Existing key value may be configured in
-# Streamlit Cloud Secrets or an environment variable without changing the key.
-SERVICE_KEY = st.secrets.get("KOPIS_SERVICE_KEY", os.getenv("KOPIS_SERVICE_KEY", ""))
+# Keep credentials out of source control. Configure KOPIS_SERVICE_KEY in
+# Streamlit secrets, an environment variable, or the sidebar password field.
+def _load_service_key() -> str:
+    env_key = os.getenv("KOPIS_SERVICE_KEY", "")
+    try:
+        return str(st.secrets.get("KOPIS_SERVICE_KEY", env_key) or env_key)
+    except Exception:
+        return env_key
+
+
+SERVICE_KEY = _load_service_key()
 BASE_URL = "http://www.kopis.or.kr/openApi/restful"
 REQUEST_TIMEOUT = 30
 
@@ -385,6 +394,13 @@ with st.sidebar:
     st.title("KOPIS Research Lab")
     st.caption("공연예술통합전산망 Open API · 논문 연구용")
 
+    if not SERVICE_KEY:
+        SERVICE_KEY = st.text_input(
+            "KOPIS API 키",
+            type="password",
+            help="Streamlit secrets 또는 KOPIS_SERVICE_KEY 환경변수가 없을 때 입력합니다.",
+        )
+
     today = date.today()
     default_end = today - timedelta(days=1)
     default_start = default_end - timedelta(days=6)
@@ -434,6 +450,7 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
         "🎭 공연 Archive & 검색",
         "🏛️ 인프라 & 제작사 DB",
         "🔬 연구 데이터 랩",
+        "🎤 J-POP 연구",
     ]
 )
 
