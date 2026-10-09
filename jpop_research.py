@@ -35,6 +35,9 @@ VERIFICATION_COLUMNS = {
     "japan_verified": "일본 아티스트 여부(확인 필요)",
     "solo_verified": "단독공연 여부(확인 필요)",
     "official_source": "검증 출처 URL",
+    "ticket_count_verified": "실제 티켓판매량(공식 확인 후 기입)",
+    "ticket_revenue_verified": "실제 티켓매출액(공식 확인 후 기입)",
+    "ticket_source_url": "판매량·매출액 공식 출처 URL",
     "notes": "검증 메모",
 }
 
@@ -54,8 +57,19 @@ def normalize_title(value: str) -> str:
 
 
 def matched_artist(title: str) -> str:
+    """Find named artist candidates, avoiding accidental matches within words.
+
+    KOPIS shprfnm=Ado can also return PADO and ADOBT. Treat these as
+    unrelated rather than labeling them as Ado concerts.
+    """
+    title = title or ""
     normalized = normalize_title(title)
     for artist, aliases in TARGET_ALIASES.items():
+        if artist == "Ado":
+            if (re.search(r"(?<![A-Za-z])ado(?![A-Za-z])", title, re.IGNORECASE)
+                    or re.search(r"(?<![가-힣])아도(?![가-힣])", title)):
+                return artist
+            continue
         if any(normalize_title(alias) in normalized for alias in aliases):
             return artist
     return ""
@@ -185,6 +199,10 @@ def render_jpop_research(service_key: str) -> None:
         "없으므로 공연명 후보 탐색 뒤 출연진 국적과 단독공연 여부를 공식 자료로 "
         "반드시 검증해야 합니다. 공연장 객석 수는 실제 관객 수가 아닙니다."
     )
+    st.caption(
+        "개별 공연의 실제 티켓판매량·매출액은 이 공연목록/상세 API에 제공되지 않습니다. "
+        "아래 판매 실적 검증 열은 공식 발표 또는 KOPIS 별도 회신을 확인한 경우에만 직접 입력하세요."
+    )
     left, middle, right = st.columns([1, 2, 1])
     with left:
         year = st.selectbox("조사 연도", list(range(2019, 2025)), index=5, key="jpop_year")
@@ -261,7 +279,10 @@ def render_jpop_research(service_key: str) -> None:
         return
 
     table = create_review_table(records)
-    show_only_candidates = st.checkbox("세 주요 아티스트의 공연명 후보만 보기", value=False)
+    show_only_candidates = st.checkbox(
+        "세 주요 아티스트의 공연명 후보만 보기",
+        value=bool(meta["keyword"] and matched_artist(meta["keyword"])),
+    )
     if show_only_candidates:
         table = table[table["후보 아티스트(공연명 기준)"] != ""].copy()
     st.caption(
