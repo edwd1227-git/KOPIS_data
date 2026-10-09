@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - feature/jpop-research-data
+      - main
   pull_request:
 jobs:
   test:
