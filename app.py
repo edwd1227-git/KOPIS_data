@@ -425,7 +425,7 @@ st.markdown(
     "KOPIS Open API **19개** 데이터 서비스를 통합 활용하는 논문·연구용 대시보드입니다."
 )
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs(
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
     [
         "📊 시장 거시 통계",
         "🏆 예매 랭킹 & 박스오피스",
@@ -1007,3 +1007,12 @@ with tab5:
 | 19 | `/prfstsPrice` | 가격대별 통계 | Tab 1, 5 |
                 """
             )
+
+
+# ===========================================================================
+# Tab 6: Research-oriented J-POP data collection
+# ===========================================================================
+from jpop_research import render_jpop_research
+
+with tab6:
+    render_jpop_research(SERVICE_KEY)
