@@ -10,6 +10,13 @@ class TestJpopResearch(unittest.TestCase):
         self.assertEqual(matched_artist("후지이 카제 내한 공연"), "Fujii Kaze")
         self.assertEqual(matched_artist("일반 국내 공연"), "")
 
+    def test_ado_does_not_match_other_artists(self):
+        self.assertEqual(matched_artist("아도(Ado) THE FIRST WORLD TOUR: Wish"), "Ado")
+        self.assertEqual(matched_artist("빈첸 PADO vol.3"), "")
+        self.assertEqual(matched_artist("ADOBT STAGE: 김오키"), "")
+        self.assertEqual(matched_artist("SHADOW BAND"), "")
+        self.assertEqual(matched_artist("Ado Live 2024"), "Ado")
+
     def test_xml(self):
         self.assertEqual(extract_items("<dbs><db><mt20id>PF1</mt20id></db></dbs>"), [{"mt20id": "PF1"}])
 
